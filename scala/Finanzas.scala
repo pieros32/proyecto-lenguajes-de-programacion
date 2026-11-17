@@ -63,7 +63,24 @@ def f3(): Unit =
     val acum = total(hoyMes, c)
     println(f"$c%-15s ${soles(acum)}%10s ${soles(tope(c))}%7s ${soles(math.max(0, acum - tope(c)))}%9s")
   }
-def f4(): Unit = println("F4 pendiente")
+// F4: (n, media, desviación poblacional) de los gastos de agosto de una categoría
+def stats(cat: String): (Int, Double, Double) =
+  val x = gastos.filter(g => g.mes == 8 && g.cat == cat).map(_.cent.toDouble)
+  val mu = x.sum / x.length
+  (x.length, mu, math.sqrt(x.map(v => (v - mu) * (v - mu)).sum / x.length))
+
+// Un gasto de septiembre es anómalo si supera media + 2 desviaciones de su categoría
+def f4(): Unit =
+  println("Categoría        n   Media   Desv.  Umbral")
+  categorias.foreach { c =>
+    val (n, mu, s) = stats(c)
+    println(f"$c%-15s $n%2d ${soles(mu)}%7s ${soles(s)}%7s ${soles(mu + 2 * s)}%7s")
+  }
+  println("Gastos anómalos:")
+  gastos.filter(g => g.mes == hoyMes && g.dia <= hoyDia).foreach { g =>
+    val (_, mu, s) = stats(g.cat)
+    if g.cent > mu + 2 * s then println(f"  id ${g.id}%d (${g.cat}, S/ ${soles(g.cent)})")
+  }
 def f5(): Unit = println("F5 pendiente")
 def f6(): Unit = println("F6 pendiente")
 
