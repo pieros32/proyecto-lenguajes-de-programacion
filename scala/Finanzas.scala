@@ -39,7 +39,13 @@ val tope = Map("Comida" -> 20000, "Transporte" -> 8000, "Entretenimiento" -> 120
 def soles(c: Double): String = f"${c / 100}%.2f"
 
 // ---- Funcionalidades ----
-def f1(): Unit = println("F1 pendiente")
+// F1: total de gastos de una categoría en un mes (septiembre solo hasta HOY)
+def total(mes: Int, cat: String): Int =
+  gastos.filter(g => g.mes == mes && g.cat == cat && (mes < hoyMes || g.dia <= hoyDia)).map(_.cent).sum
+
+def f1(): Unit =
+  println("Categoría        Agosto  Septiembre")
+  categorias.foreach(c => println(f"$c%-15s ${soles(total(8, c))}%8s ${soles(total(9, c))}%11s"))
 def f2(): Unit = println("F2 pendiente")
 def f3(): Unit = println("F3 pendiente")
 def f4(): Unit = println("F4 pendiente")
