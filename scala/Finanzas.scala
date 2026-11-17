@@ -46,7 +46,16 @@ def total(mes: Int, cat: String): Int =
 def f1(): Unit =
   println("Categoría        Agosto  Septiembre")
   categorias.foreach(c => println(f"$c%-15s ${soles(total(8, c))}%8s ${soles(total(9, c))}%11s"))
-def f2(): Unit = println("F2 pendiente")
+// ¿El gasto cae en la ventana de análisis (días 14 al 20)?
+def enVentana(g: Gasto): Boolean = g.mes == hoyMes && g.dia >= ventanaIni && g.dia <= hoyDia
+
+// F2: microgastos de la ventana en Comida y Otros
+def f2(): Unit =
+  println("Categoría  Microgastos   Total  ¿Patrón?")
+  List("Comida", "Otros").foreach { c =>
+    val micro = gastos.filter(g => enVentana(g) && g.cat == c && g.cent < microgasto).map(_.cent)
+    println(f"$c%-9s ${micro.length}%11d ${soles(micro.sum)}%7s  ${if micro.length >= minMicro then "Sí" else "No"}")
+  }
 def f3(): Unit = println("F3 pendiente")
 def f4(): Unit = println("F4 pendiente")
 def f5(): Unit = println("F5 pendiente")
