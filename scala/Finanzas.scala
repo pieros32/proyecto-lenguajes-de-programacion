@@ -56,7 +56,13 @@ def f2(): Unit =
     val micro = gastos.filter(g => enVentana(g) && g.cat == c && g.cent < microgasto).map(_.cent)
     println(f"$c%-9s ${micro.length}%11d ${soles(micro.sum)}%7s  ${if micro.length >= minMicro then "Sí" else "No"}")
   }
-def f3(): Unit = println("F3 pendiente")
+// F3: acumulado del mes de corte frente al tope; excedido = max(0, acumulado - tope)
+def f3(): Unit =
+  println("Categoría        Acumulado    Tope  Excedido")
+  categorias.foreach { c =>
+    val acum = total(hoyMes, c)
+    println(f"$c%-15s ${soles(acum)}%10s ${soles(tope(c))}%7s ${soles(math.max(0, acum - tope(c)))}%9s")
+  }
 def f4(): Unit = println("F4 pendiente")
 def f5(): Unit = println("F5 pendiente")
 def f6(): Unit = println("F6 pendiente")
