@@ -4,3 +4,4 @@ target/
 .bloop/
 __pycache__/
 *.pyc
+.scala-build/
