@@ -141,19 +141,19 @@ def estadisticas(movimientos, cat):
 
 
 # Umbral de anomalía: media + 2 desviaciones (σ poblacional, se divide entre n)
-def umbral(movimientos, cat):
-    _, mu, s = estadisticas(movimientos, cat)
+def umbral(mu, s):
     return mu + 2 * s
 
 
 def f4(movimientos):
     print("Categoría        n   Media   Desv.  Umbral")
+    umbrales = {}  # un solo cálculo por categoría: la tabla y el filtro usan el mismo umbral
     for c in CATEGORIAS:
         n, mu, s = estadisticas(movimientos, c)
-        print(f"{c:<15s} {n:2d} {soles(mu):>7s} {soles(s):>7s} {soles(mu + 2 * s):>7s}")
+        umbrales[c] = umbral(mu, s)
+        print(f"{c:<15s} {n:2d} {soles(mu):>7s} {soles(s):>7s} {soles(umbrales[c]):>7s}")
     print("Gastos anómalos:")
-    # Se calcula cada umbral una sola vez; luego se filtran los gastos de septiembre hasta HOY
-    umbrales = {c: umbral(movimientos, c) for c in CATEGORIAS}
+    # Se filtran los gastos de septiembre hasta HOY que superan el umbral de su categoría
     for g in solo_gastos(movimientos):
         if g.mes == HOY_MES and g.hasta_hoy() and g.centimos > umbrales[g.categoria]:
             print(f"  id {g.id} ({g.categoria}, S/ {soles(g.centimos)})")
