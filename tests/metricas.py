@@ -25,7 +25,7 @@ ASIGNACION = {
         "F5": ["proyeccion", "f5"], "F6": ["ahorro", "f6"], "Menú": ["menu", "__name__"],
     },
     "Scala": {
-        "F1": ["f1"], "F2": ["f2"], "F3": ["f3"], "F4": ["stats", "f4"],
+        "F1": ["f1"], "F2": ["f2"], "F3": ["f3"], "F4": ["stats", "umbral", "f4"],
         "F5": ["saldoActual", "gastoVariable", "gastoDiario", "liquidez", "f5"],
         "F6": ["ahorro", "f6"], "Menú": ["menu", "main"],
     },

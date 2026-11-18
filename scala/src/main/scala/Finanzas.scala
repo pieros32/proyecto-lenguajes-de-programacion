@@ -55,21 +55,28 @@ def f3(): Unit =
   }
 
 // F4 Gastos anomalos
+// (n, media, desviación) de la línea base de agosto. La desviación es poblacional:
+// se divide entre n, no entre n - 1, porque agosto completo es toda la población.
 def stats(cat: String): (Int, Double, Double) =
   val x = gastos.filter(g => g.mes == mesBase && g.cat == cat).map(_.cent.toDouble)
   val mu = x.sum / x.length
   (x.length, mu, math.sqrt(x.map(v => (v - mu) * (v - mu)).sum / x.length))
 
+// Única definición del umbral de anomalía: media + 2 desviaciones
+def umbral(mu: Double, s: Double): Double = mu + 2 * s
+
 def f4(): Unit =
+  // Línea base y umbral de cada categoría, calculados una sola vez
+  val base = categorias.map(c => c -> stats(c)).toMap
+  val umbrales = base.map { case (c, (_, mu, s)) => c -> umbral(mu, s) }
   println("Categoría        n   Media   Desv.  Umbral")
   categorias.foreach { c =>
-    val (n, mu, s) = stats(c)
-    println(f"$c%-15s $n%2d ${soles(mu)}%7s ${soles(s)}%7s ${soles(mu + 2 * s)}%7s")
+    val (n, mu, s) = base(c)
+    println(f"$c%-15s $n%2d ${soles(mu)}%7s ${soles(s)}%7s ${soles(umbrales(c))}%7s")
   }
   println("Gastos anómalos:")
-  gastos.filter(g => g.mes == hoyMes && hastaHoy(g.mes, g.dia)).foreach { g =>
-    val (_, mu, s) = stats(g.cat)
-    if g.cent > mu + 2 * s then println(f"  id ${g.id}%d (${g.cat}, S/ ${soles(g.cent)})")
+  gastos.filter(g => g.mes == hoyMes && hastaHoy(g.mes, g.dia) && g.cent > umbrales(g.cat)).foreach { g =>
+    println(f"  id ${g.id}%d (${g.cat}, S/ ${soles(g.cent)})")
   }
 
 // F5 Liquidez a fin de mes
