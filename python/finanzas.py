@@ -86,8 +86,12 @@ def soles(c):
 # ---- Funcionalidades ----
 # F1: total de gastos de una categoría en un mes (septiembre solo hasta HOY)
 def total(movimientos, mes, cat):
-    return sum(g.centimos for g in solo_gastos(movimientos)
-               if g.mes == mes and g.categoria == cat and g.hasta_hoy())
+    acumulado = 0
+    for g in solo_gastos(movimientos):
+        # Septiembre solo cuenta hasta la fecha de corte (hasta_hoy)
+        if g.mes == mes and g.categoria == cat and g.hasta_hoy():
+            acumulado += g.centimos
+    return acumulado
 
 
 def f1(movimientos):
@@ -100,24 +104,40 @@ def f1(movimientos):
 def f2(movimientos):
     print("Categoría  Microgastos   Total  ¿Patrón?")
     for c in CAT_HORMIGA:
-        micro = [g.centimos for g in solo_gastos(movimientos)
-                 if g.en_ventana() and g.categoria == c and g.es_microgasto()]
-        print(f"{c:<9s} {len(micro):11d} {soles(sum(micro)):>7s}  {'Sí' if len(micro) >= MIN_MICRO else 'No'}")
+        contador, acumulado = 0, 0
+        for g in solo_gastos(movimientos):
+            if g.en_ventana() and g.categoria == c and g.es_microgasto():
+                contador += 1
+                acumulado += g.centimos
+        # Hay patrón de gasto hormiga con MIN_MICRO microgastos o más en la ventana
+        patron = "Sí" if contador >= MIN_MICRO else "No"
+        print(f"{c:<9s} {contador:11d} {soles(acumulado):>7s}  {patron}")
 
 
-# F3: acumulado del mes de corte frente al tope; excedido = max(0, acumulado - tope)
+# F3: acumulado del mes de corte frente al tope; excedido = acumulado - tope si lo supera, si no 0
 def f3(movimientos):
     print("Categoría        Acumulado    Tope  Excedido")
     for c in CATEGORIAS:
         acum = total(movimientos, HOY_MES, c)
-        print(f"{c:<15s} {soles(acum):>10s} {soles(TOPE[c]):>7s} {soles(max(0, acum - TOPE[c])):>9s}")
+        excedido = 0
+        if acum > TOPE[c]:  # solo hay exceso si el acumulado supera el tope
+            excedido = acum - TOPE[c]
+        print(f"{c:<15s} {soles(acum):>10s} {soles(TOPE[c]):>7s} {soles(excedido):>9s}")
 
 
 # F4: (n, media, desviación poblacional) de los gastos de agosto de una categoría
 def estadisticas(movimientos, cat):
-    x = [g.centimos for g in solo_gastos(movimientos) if g.mes == MES_BASE and g.categoria == cat]
-    mu = sum(x) / len(x)
-    return len(x), mu, sqrt(sum((v - mu) ** 2 for v in x) / len(x))
+    n, suma = 0, 0
+    for g in solo_gastos(movimientos):
+        if g.mes == MES_BASE and g.categoria == cat:
+            n += 1
+            suma += g.centimos
+    mu = suma / n
+    suma_cuadrados = 0
+    for g in solo_gastos(movimientos):
+        if g.mes == MES_BASE and g.categoria == cat:
+            suma_cuadrados += (g.centimos - mu) ** 2
+    return n, mu, sqrt(suma_cuadrados / n)  # poblacional: se divide entre n, no n - 1
 
 
 # Umbral de anomalía: media + 2 desviaciones (σ poblacional, se divide entre n)
@@ -134,10 +154,9 @@ def f4(movimientos):
     print("Gastos anómalos:")
     # Se calcula cada umbral una sola vez; luego se filtran los gastos de septiembre hasta HOY
     umbrales = {c: umbral(movimientos, c) for c in CATEGORIAS}
-    anomalos = [g for g in solo_gastos(movimientos)
-                if g.mes == HOY_MES and g.hasta_hoy() and g.centimos > umbrales[g.categoria]]
-    for g in anomalos:
-        print(f"  id {g.id} ({g.categoria}, S/ {soles(g.centimos)})")
+    for g in solo_gastos(movimientos):
+        if g.mes == HOY_MES and g.hasta_hoy() and g.centimos > umbrales[g.categoria]:
+            print(f"  id {g.id} ({g.categoria}, S/ {soles(g.centimos)})")
 
 
 # F5: proyección de liquidez (céntimos sin redondear; F6 reutiliza estos valores)

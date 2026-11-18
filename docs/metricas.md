@@ -9,16 +9,16 @@ Líneas de código por funcionalidad y por lenguaje, según la sección 7 de
 | Funcionalidad | Python | Scala | Prolog |
 |---|---:|---:|---:|
 | F1 | 4 | 3 | 6 |
-| F2 | 6 | 6 | 11 |
-| F3 | 5 | 6 | 8 |
-| F4 | 18 | 15 | 21 |
+| F2 | 10 | 6 | 11 |
+| F3 | 8 | 6 | 8 |
+| F4 | 25 | 15 | 21 |
 | F5 | 12 | 8 | 26 |
 | F6 | 21 | 14 | 34 |
 | Menú | 18 | 12 | 17 |
-| Compartido | 55 | 24 | 44 |
-| **Total (código)** | **139** | **88** | **167** |
-| Líneas totales del archivo | 212 | 116 | 227 |
-| Suma F1–F6 | 66 | 52 | 106 |
+| Compartido | 58 | 24 | 44 |
+| **Total (código)** | **156** | **88** | **167** |
+| Líneas totales del archivo | 231 | 116 | 227 |
+| Suma F1–F6 | 80 | 52 | 106 |
 
 ## Cómo se asignan las líneas
 
