@@ -1,7 +1,6 @@
-target/
-.bsp/
+# Red de seguridad: archivos de IDE que no deben subirse si se abren desde la raíz
+.idea/
+.vscode/
 .metals/
-.bloop/
-__pycache__/
-*.pyc
+.bsp/
 .scala-build/

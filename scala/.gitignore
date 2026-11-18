@@ -1,0 +1,10 @@
+# Generado por IntelliJ, sbt, Scala CLI y Metals
+.idea/
+.bsp/
+.bloop/
+.metals/
+.scala-build/
+target/
+project/target/
+project/project/
+out/
