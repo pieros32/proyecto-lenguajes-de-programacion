@@ -1,7 +1,7 @@
 # Sistema de Gestión Financiera Personal - Python (multiparadigma)
 # Montos en céntimos enteros; fechas como (mes, día) enteros. Se redondea solo al imprimir.
 #   - Orientado a objetos: Movimiento, Gasto e Ingreso (herencia y polimorfismo).
-#   - Funcional: comprensiones, sum, map, filter, any/all.
+#   - Funcional: comprensiones, sum y all.
 #   - Imperativo: bucles y condicionales en la carga, los reportes y el menú.
 import csv
 from itertools import combinations
