@@ -1,11 +1,13 @@
 // Sistema de Gestion Financiera Personal - Scala
+// Estilo funcional: val inmutables, map/filter/sum sobre listas, sin var. Montos en céntimos enteros
+// (evita errores de redondeo con Double); fechas como (mes, día) enteros. Solo se redondea al imprimir.
 import scala.io.Source
 import scala.util.Using
 
 case class Gasto(id: Int, mes: Int, dia: Int, cat: String, cent: Int)
 case class Ingreso(id: Int, mes: Int, dia: Int, cent: Int)
 
-// Parametros
+// Parametros (HOY = 20 de septiembre; agosto es la linea base de F4)
 val archivo = "../datos/movimientos.csv"
 val hoyMes = 9; val hoyDia = 20; val diasRestantes = 10
 val mesBase = 8
@@ -14,6 +16,7 @@ val microgasto = 1000; val minMicro = 5; val recorte = 0.2
 val saldoInicial = 9000; val ingresoEsperado = 10000
 val categorias = List("Comida", "Transporte", "Entretenimiento", "Servicios", "Otros")
 val catHormiga = List("Comida", "Otros")
+// Servicios es el gasto fijo: ya se pago en el mes, no entra en el gasto diario ni se recorta
 val catFija = "Servicios"
 val catRecortables = categorias.filter(_ != catFija) // Servicios es gasto fijo: no se recorta
 val tope = Map("Comida" -> 20000, "Transporte" -> 8000, "Entretenimiento" -> 12000, "Servicios" -> 20000, "Otros" -> 6000)
@@ -25,9 +28,12 @@ val gastos = filas.collect { case Array(id, "GASTO", mes, dia, cat, cent) => Gas
 val ingresos = filas.collect { case Array(id, "INGRESO", mes, dia, _, cent) => Ingreso(id.toInt, mes.toInt, dia.toInt, cent.toInt) }
 
 // Fechas
+// Septiembre solo cuenta hasta HOY (dia 20); los meses anteriores cuentan completos.
 def hastaHoy(mes: Int, dia: Int): Boolean = mes < hoyMes || (mes == hoyMes && dia <= hoyDia)
+// Ventana de analisis: dias 14 al 20 de septiembre (7 dias)
 def enVentana(g: Gasto): Boolean = g.mes == hoyMes && g.dia >= ventanaIni && hastaHoy(g.mes, g.dia)
 
+// Los centimos se convierten a soles solo para mostrar
 def soles(c: Double): String = f"${c / 100}%.2f"
 
 // F1 Total por categoria
@@ -38,7 +44,7 @@ def f1(): Unit =
   println("Categoría        Agosto  Septiembre")
   categorias.foreach(c => println(f"$c%-15s ${soles(total(mesBase, c))}%8s ${soles(total(hoyMes, c))}%11s"))
 
-// F2 Gasto hormiga
+// F2 Gasto hormiga: microgasto = menos de S/ 10.00 (1000 centimos); patron = 5 o mas en la ventana
 def f2(): Unit =
   println("Categoría  Microgastos   Total  ¿Patrón?")
   catHormiga.foreach { c =>
@@ -46,7 +52,7 @@ def f2(): Unit =
     println(f"$c%-9s ${micro.length}%11d ${soles(micro.sum)}%7s  ${if micro.length >= minMicro then "Sí" else "No"}")
   }
 
-// F3 Exceso de presupuesto
+// F3 Exceso de presupuesto: excedido = acumulado - tope, con minimo cero (max)
 def f3(): Unit =
   println("Categoría        Acumulado    Tope  Excedido")
   categorias.foreach { c =>
@@ -79,7 +85,8 @@ def f4(): Unit =
     println(f"  id ${g.id}%d (${g.cat}, S/ ${soles(g.cent)})")
   }
 
-// F5 Liquidez a fin de mes
+// F5 Liquidez a fin de mes = saldo actual + ingreso esperado - gasto diario * dias restantes.
+// Gasto diario = gasto variable de la ventana / 7; el variable excluye Servicios (gasto fijo).
 val saldoActual = saldoInicial + ingresos.filter(i => hastaHoy(i.mes, i.dia)).map(_.cent).sum - gastos.filter(g => hastaHoy(g.mes, g.dia)).map(_.cent).sum
 val gastoVariable = gastos.filter(g => enVentana(g) && g.cat != catFija).map(_.cent).sum
 val gastoDiario = gastoVariable / ventanaDias.toDouble
@@ -90,14 +97,16 @@ def f5(): Unit =
     "Ingreso esperado restante" -> ingresoEsperado, "Liquidez a fin de mes" -> liquidez).foreach((n, v) => println(f"$n%-30s ${soles(v)}%8s"))
   println(s"Riesgo: ${if liquidez < 0 then "sí" else "no"}")
 
-// F6 Plan de ahorro
+// F6 Plan de ahorro: ahorro(c) = gasto diario de la categoria * dias restantes * 20% de recorte.
+// Un grupo de categorias cumple si su ahorro suma al menos el deficit; es minimo si cumple y,
+// al quitarle cualquier categoria, deja de cumplir (basta quitar una: los ahorros son >= 0).
 def ahorro(cat: String): Double =
   gastos.filter(g => enVentana(g) && g.cat == cat).map(_.cent).sum / ventanaDias.toDouble * diasRestantes * recorte
 
 def f6(): Unit =
   if liquidez >= 0 then println("No hay riesgo de liquidez: el plan de ahorro no es necesario")
   else
-    val deficit = -liquidez
+    val deficit = -liquidez // liquidez negativa: cuanto falta para llegar a cero
     def cumple(g: List[String]): Boolean = g.map(ahorro).sum >= deficit
     println(s"Déficit: S/ ${soles(deficit)}")
     catRecortables.foreach(c => println(f"$c%-16s ${soles(ahorro(c))}%7s"))
