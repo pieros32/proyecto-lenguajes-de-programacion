@@ -19,9 +19,10 @@ val catRecortables = List("Comida", "Transporte", "Entretenimiento", "Otros")
 val tope = Map("Comida" -> 20000, "Transporte" -> 8000, "Entretenimiento" -> 12000, "Servicios" -> 20000, "Otros" -> 6000)
 
 // Datos (CSV: id,tipo,mes,dia,categoria,centimos)
-val filas = Using.resource(Source.fromFile(archivo, "UTF-8"))(_.getLines().drop(1).map(_.trim).filter(_.nonEmpty).map(_.split(",", -1)).toList)
-val gastos = filas.filter(f => f(1) == "GASTO").map(f => Gasto(f(0).toInt, f(2).toInt, f(3).toInt, f(4), f(5).toInt))
-val ingresos = filas.filter(f => f(1) == "INGRESO").map(f => Ingreso(f(0).toInt, f(2).toInt, f(3).toInt, f(5).toInt))
+val lineas = Using.resource(Source.fromFile(archivo, "UTF-8"))(_.getLines().toList).drop(1)
+val filas = lineas.map(_.trim.split(",", -1))
+val gastos = filas.collect { case Array(id, "GASTO", mes, dia, cat, cent) => Gasto(id.toInt, mes.toInt, dia.toInt, cat, cent.toInt) }
+val ingresos = filas.collect { case Array(id, "INGRESO", mes, dia, _, cent) => Ingreso(id.toInt, mes.toInt, dia.toInt, cent.toInt) }
 
 // Fechas
 def hastaHoy(mes: Int, dia: Int): Boolean = mes < hoyMes || (mes == hoyMes && dia <= hoyDia)
