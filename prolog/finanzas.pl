@@ -109,22 +109,27 @@ stats(Cat, N, Mu, Sigma) :-
     foldl([X, A0, A]>>(A is A0 + (X - Mu) ** 2), L, 0, SumSq),
     Sigma is sqrt(SumSq / N).
 
-umbral(Cat, U) :- stats(Cat, _, Mu, Sigma), U is Mu + 2 * Sigma.
+% Única definición del umbral: media + 2 desviaciones
+umbral(Mu, Sigma, U) :- U is Mu + 2 * Sigma.
+
+% Línea base de una categoría, calculada una sola vez por f4
+base(b(Cat, N, Mu, Sg, U)) :-
+    categoria(Cat), stats(Cat, N, Mu, Sg), umbral(Mu, Sg, U).
 
 % Gasto de septiembre (hasta HOY) estrictamente mayor al umbral de su categoría
-anomalo(Id, Cat, C) :-
+anomalo(Bases, Id, Cat, C) :-
     hoy(HM, HD),
     gasto(Id, HM, D, Cat, C), D =< HD,
-    umbral(Cat, U), C > U.
+    memberchk(b(Cat, _, _, _, U), Bases), C > U.
 
 f4 :-
     format('~w~t~16|~t~w~4+~t~w~9+~t~w~9+~t~w~9+~n', ['Categoría', 'n', 'Media', 'Desv.', 'Umbral']),
-    forall(categoria(Cat),
-           ( stats(Cat, N, Mu, Sg), U is Mu + 2 * Sg,
-             nombre(Cat, Nom), soles(Mu, SM), soles(Sg, SS), soles(U, SU),
+    findall(B, base(B), Bases),
+    forall(member(b(Cat, N, Mu, Sg, U), Bases),
+           ( nombre(Cat, Nom), soles(Mu, SM), soles(Sg, SS), soles(U, SU),
              format('~w~t~16|~t~d~4+~t~w~9+~t~w~9+~t~w~9+~n', [Nom, N, SM, SS, SU]) )),
     writeln('Gastos anómalos:'),
-    forall(anomalo(Id, Cat, C),
+    forall(anomalo(Bases, Id, Cat, C),
            ( nombre(Cat, Nom), soles(C, SC),
              format('  id ~d (~w, S/ ~w)~n', [Id, Nom, SC]) )).
 

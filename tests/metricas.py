@@ -31,7 +31,7 @@ ASIGNACION = {
     },
     "Prolog": {
         "F1": ["f1"], "F2": ["micro", "f2"], "F3": ["excedido", "f3"],
-        "F4": ["stats", "umbral", "anomalo", "f4"],
+        "F4": ["stats", "umbral", "base", "anomalo", "f4"],
         "F5": ["saldo_actual", "gasto_variable", "liquidez", "riesgo", "f5"],
         "F6": ["ahorro", "ahorro_total", "comb", "cumple", "minima", "f6"],
         "Menú": ["opcion", "menu", "initialization"],
