@@ -11,14 +11,14 @@ Líneas de código por funcionalidad y por lenguaje, según la sección 7 de
 | F1 | 4 | 3 | 6 |
 | F2 | 10 | 6 | 11 |
 | F3 | 8 | 6 | 8 |
-| F4 | 25 | 15 | 21 |
+| F4 | 25 | 17 | 23 |
 | F5 | 12 | 8 | 26 |
 | F6 | 21 | 14 | 34 |
 | Menú | 18 | 12 | 17 |
 | Compartido | 58 | 24 | 44 |
-| **Total (código)** | **156** | **88** | **167** |
-| Líneas totales del archivo | 231 | 116 | 227 |
-| Suma F1–F6 | 80 | 52 | 106 |
+| **Total (código)** | **156** | **90** | **169** |
+| Líneas totales del archivo | 231 | 133 | 232 |
+| Suma F1–F6 | 80 | 54 | 108 |
 
 ## Cómo se asignan las líneas
 
@@ -26,8 +26,8 @@ El programa se divide en bloques de primer nivel (función, predicado, clase o c
 Cada bloque se asigna a la funcionalidad que lo usa en exclusiva:
 
 - **Python**: F1 = `f1`; F2 = `f2`; F3 = `f3`; F4 = `estadisticas`, `umbral`, `f4`; F5 = `proyeccion`, `f5`; F6 = `ahorro`, `f6`; Menú = `menu`, `__name__`
-- **Scala**: F1 = `f1`; F2 = `f2`; F3 = `f3`; F4 = `stats`, `f4`; F5 = `saldoActual`, `gastoVariable`, `gastoDiario`, `liquidez`, `f5`; F6 = `ahorro`, `f6`; Menú = `menu`, `main`
-- **Prolog**: F1 = `f1`; F2 = `micro`, `f2`; F3 = `excedido`, `f3`; F4 = `stats`, `umbral`, `anomalo`, `f4`; F5 = `saldo_actual`, `gasto_variable`, `liquidez`, `riesgo`, `f5`; F6 = `ahorro`, `ahorro_total`, `comb`, `cumple`, `minima`, `f6`; Menú = `opcion`, `menu`, `initialization`
+- **Scala**: F1 = `f1`; F2 = `f2`; F3 = `f3`; F4 = `stats`, `umbral`, `f4`; F5 = `saldoActual`, `gastoVariable`, `gastoDiario`, `liquidez`, `f5`; F6 = `ahorro`, `f6`; Menú = `menu`, `main`
+- **Prolog**: F1 = `f1`; F2 = `micro`, `f2`; F3 = `excedido`, `f3`; F4 = `stats`, `umbral`, `base`, `anomalo`, `f4`; F5 = `saldo_actual`, `gasto_variable`, `liquidez`, `riesgo`, `f5`; F6 = `ahorro`, `ahorro_total`, `comb`, `cumple`, `minima`, `f6`; Menú = `opcion`, `menu`, `initialization`
 
 **Compartido** agrupa lo que no pertenece a una sola funcionalidad: lectura del CSV y datos,
 parámetros, modelo de datos (en Python, las clases `Movimiento`, `Gasto` e `Ingreso`),
