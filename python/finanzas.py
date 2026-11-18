@@ -1,35 +1,31 @@
 # Sistema de Gestión Financiera Personal - Python
 # Montos en céntimos enteros; fechas como (mes, día) enteros.
+import csv
 from collections import namedtuple
 from itertools import combinations
 from math import sqrt
+from pathlib import Path
 
 Gasto = namedtuple("Gasto", "id mes dia cat cent")
 Ingreso = namedtuple("Ingreso", "id mes dia cent")
 
-# ---- Datos (mismos 80 movimientos de datos/movimientos.csv) ----
-gastos = [Gasto(*g) for g in [
-    (2,8,1,"Comida",980), (3,8,2,"Comida",920), (4,8,2,"Transporte",500), (5,8,3,"Comida",700),
-    (6,8,3,"Otros",1950), (7,8,4,"Transporte",550), (8,8,5,"Comida",830), (9,8,5,"Servicios",3500),
-    (10,8,6,"Comida",1340), (11,8,7,"Transporte",450), (12,8,7,"Servicios",8000), (13,8,8,"Comida",960),
-    (14,8,8,"Entretenimiento",2000), (15,8,9,"Comida",1250), (16,8,9,"Otros",650), (17,8,10,"Transporte",500),
-    (18,8,10,"Servicios",6000), (19,8,11,"Comida",1080), (20,8,12,"Comida",1500), (21,8,13,"Transporte",450),
-    (22,8,13,"Otros",2000), (23,8,14,"Comida",1060), (24,8,15,"Transporte",400), (25,8,15,"Entretenimiento",2500),
-    (26,8,16,"Comida",1100), (27,8,17,"Comida",1280), (28,8,18,"Otros",650), (29,8,19,"Comida",1100),
-    (30,8,20,"Transporte",500), (32,8,21,"Comida",1390), (33,8,22,"Entretenimiento",3000), (34,8,23,"Comida",1350),
-    (35,8,24,"Transporte",500), (36,8,25,"Comida",1630), (37,8,26,"Otros",1750), (38,8,27,"Comida",1410),
-    (39,8,28,"Transporte",400), (40,8,29,"Comida",1220), (41,8,29,"Entretenimiento",3500), (42,8,30,"Otros",850),
-    (43,8,31,"Comida",920), (45,9,1,"Comida",1400), (46,9,2,"Servicios",8500), (47,9,2,"Comida",1350),
-    (48,9,3,"Servicios",6200), (49,9,3,"Transporte",550), (50,9,4,"Servicios",3000), (51,9,4,"Comida",1200),
-    (52,9,5,"Entretenimiento",3500), (53,9,5,"Otros",2000), (54,9,6,"Comida",1550), (55,9,6,"Transporte",450),
-    (56,9,7,"Transporte",2800), (57,9,7,"Comida",1600), (58,9,8,"Comida",1300), (59,9,8,"Entretenimiento",2500),
-    (60,9,9,"Transporte",500), (61,9,9,"Otros",1400), (62,9,10,"Comida",1450), (63,9,10,"Transporte",300),
-    (65,9,13,"Comida",3800), (66,9,13,"Comida",1300), (67,9,14,"Comida",750), (68,9,14,"Transporte",300),
-    (69,9,15,"Comida",850), (70,9,15,"Otros",650), (71,9,16,"Comida",900), (72,9,16,"Transporte",300),
-    (73,9,17,"Comida",650), (74,9,17,"Otros",500), (75,9,18,"Comida",800), (76,9,18,"Transporte",300),
-    (77,9,19,"Comida",950), (78,9,19,"Entretenimiento",9500), (79,9,20,"Comida",700), (80,9,20,"Otros",700),
-]]
-ingresos = [Ingreso(1,8,1,55000), Ingreso(31,8,21,10000), Ingreso(44,9,1,55000), Ingreso(64,9,12,10000)]
+# ---- Datos: se leen de datos/movimientos.csv (id,tipo,mes,dia,categoria,centimos) ----
+RUTA_CSV = Path(__file__).resolve().parent.parent / "datos" / "movimientos.csv"
+
+
+def cargar(ruta):
+    gastos, ingresos = [], []
+    with open(ruta, encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            id_, mes, dia, cent = int(r["id"]), int(r["mes"]), int(r["dia"]), int(r["centimos"])
+            if r["tipo"] == "GASTO":
+                gastos.append(Gasto(id_, mes, dia, r["categoria"], cent))
+            else:
+                ingresos.append(Ingreso(id_, mes, dia, cent))
+    return gastos, ingresos
+
+
+gastos, ingresos = cargar(RUTA_CSV)
 
 # ---- Parámetros ----
 HOY_MES, HOY_DIA, DIAS_RESTANTES = 9, 20, 10
