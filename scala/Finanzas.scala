@@ -31,7 +31,7 @@ val ingresos = List(Ingreso(1,8,1,55000), Ingreso(31,8,21,10000), Ingreso(44,9,1
 // ---- Parámetros ----
 val hoyMes = 9; val hoyDia = 20; val diasRestantes = 10
 val ventanaIni = 14; val ventanaDias = 7
-val microgasto = 1000; val minMicro = 5
+val microgasto = 1000; val minMicro = 5; val recorte = 0.2
 val saldoInicial = 9000; val ingresoEsperado = 10000
 val categorias = List("Comida", "Transporte", "Entretenimiento", "Servicios", "Otros")
 val tope = Map("Comida" -> 20000, "Transporte" -> 8000, "Entretenimiento" -> 12000, "Servicios" -> 20000, "Otros" -> 6000)
@@ -92,7 +92,23 @@ def f5(): Unit =
   List[(String, Double)]("Saldo actual" -> saldoActual, "Gasto variable de la ventana" -> gastoVariable, "Gasto diario proyectado" -> gastoDiario,
     "Ingreso esperado restante" -> ingresoEsperado, "Liquidez a fin de mes" -> liquidez).foreach((n, v) => println(f"$n%-30s ${soles(v)}%8s"))
   println(s"Riesgo: ${if liquidez < 0 then "sí" else "no"}")
-def f6(): Unit = println("F6 pendiente")
+// F6: plan de ahorro, solo si F5 detecta riesgo
+def ahorro(cat: String): Double =
+  gastos.filter(g => enVentana(g) && g.cat == cat).map(_.cent).sum / ventanaDias.toDouble * diasRestantes * recorte
+
+def f6(): Unit =
+  if liquidez >= 0 then println("No hay riesgo de liquidez: el plan de ahorro no es necesario")
+  else
+    val deficit = -liquidez
+    val rec = List("Comida", "Transporte", "Entretenimiento", "Otros")
+    def cumple(g: List[String]): Boolean = g.map(ahorro).sum >= deficit
+    println(s"Déficit: S/ ${soles(deficit)}")
+    rec.foreach(c => println(f"$c%-16s ${soles(ahorro(c))}%7s"))
+    println("Subconjunto                                    Ahorro  ¿Cumple?  ¿Mínimo?")
+    (1 to rec.length).flatMap(rec.combinations).foreach { g =>
+      val minimo = cumple(g) && g.forall(c => !cumple(g.filter(_ != c)))
+      println(f"${g.mkString(", ")}%-45s ${soles(g.map(ahorro).sum)}%7s  ${if cumple(g) then "Sí" else "No"}%-8s  ${if minimo then "Sí" else "—"}")
+    }
 
 // ---- Menú ----
 def menu(): Unit =
