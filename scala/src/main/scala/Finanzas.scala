@@ -15,7 +15,7 @@ val saldoInicial = 9000; val ingresoEsperado = 10000
 val categorias = List("Comida", "Transporte", "Entretenimiento", "Servicios", "Otros")
 val catHormiga = List("Comida", "Otros")
 val catFija = "Servicios"
-val catRecortables = List("Comida", "Transporte", "Entretenimiento", "Otros")
+val catRecortables = categorias.filter(_ != catFija) // Servicios es gasto fijo: no se recorta
 val tope = Map("Comida" -> 20000, "Transporte" -> 8000, "Entretenimiento" -> 12000, "Servicios" -> 20000, "Otros" -> 6000)
 
 // Datos (CSV: id,tipo,mes,dia,categoria,centimos)
