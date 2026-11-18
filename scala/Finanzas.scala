@@ -81,7 +81,17 @@ def f4(): Unit =
     val (_, mu, s) = stats(g.cat)
     if g.cent > mu + 2 * s then println(f"  id ${g.id}%d (${g.cat}, S/ ${soles(g.cent)})")
   }
-def f5(): Unit = println("F5 pendiente")
+// F5: proyección de liquidez (céntimos sin redondear; F6 reutiliza estos valores)
+def hastaHoy(mes: Int, dia: Int): Boolean = mes < hoyMes || (mes == hoyMes && dia <= hoyDia)
+val saldoActual = saldoInicial + ingresos.filter(i => hastaHoy(i.mes, i.dia)).map(_.cent).sum - gastos.filter(g => hastaHoy(g.mes, g.dia)).map(_.cent).sum
+val gastoVariable = gastos.filter(g => enVentana(g) && g.cat != "Servicios").map(_.cent).sum
+val gastoDiario = gastoVariable / ventanaDias.toDouble
+val liquidez = saldoActual + ingresoEsperado - gastoDiario * diasRestantes
+
+def f5(): Unit =
+  List[(String, Double)]("Saldo actual" -> saldoActual, "Gasto variable de la ventana" -> gastoVariable, "Gasto diario proyectado" -> gastoDiario,
+    "Ingreso esperado restante" -> ingresoEsperado, "Liquidez a fin de mes" -> liquidez).foreach((n, v) => println(f"$n%-30s ${soles(v)}%8s"))
+  println(s"Riesgo: ${if liquidez < 0 then "sí" else "no"}")
 def f6(): Unit = println("F6 pendiente")
 
 // ---- Menú ----
