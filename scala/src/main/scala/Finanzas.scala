@@ -110,14 +110,15 @@ def f6(): Unit =
 // Menu
 def menu(): Unit =
   println("\n1) F1 Total por categoría\n2) F2 Gasto hormiga\n3) F3 Exceso de presupuesto\n4) F4 Gastos anómalos\n5) F5 Liquidez a fin de mes\n6) F6 Plan de ahorro\n0) Salir")
-  scala.io.StdIn.readLine() match
-    case "1" => f1(); menu()
-    case "2" => f2(); menu()
-    case "3" => f3(); menu()
-    case "4" => f4(); menu()
-    case "5" => f5(); menu()
-    case "6" => f6(); menu()
-    case null | "0" => println("Hasta luego")
+  // readLine() devuelve null al fin de entrada: Option lo vuelve None; trim tolera espacios
+  Option(scala.io.StdIn.readLine()).map(_.trim) match
+    case Some("1") => f1(); menu()
+    case Some("2") => f2(); menu()
+    case Some("3") => f3(); menu()
+    case Some("4") => f4(); menu()
+    case Some("5") => f5(); menu()
+    case Some("6") => f6(); menu()
+    case None | Some("0") => println("Hasta luego")
     case _ => println("Opción no válida"); menu()
 
 @main def main(): Unit = menu()
